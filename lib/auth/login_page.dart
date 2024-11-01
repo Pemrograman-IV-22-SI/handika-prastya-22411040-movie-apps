@@ -1,8 +1,15 @@
+import 'dart:ffi';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:movie_apps/admin/home_admin.dart';
+import 'package:movie_apps/api_service/api.dart';
 import 'package:movie_apps/auth/register_page.dart';
+import 'package:movie_apps/users/home_users.dart';
+import 'package:toastification/toastification.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -12,6 +19,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final dio = Dio();
+  bool isiLoading = false;
   TextEditingController usernamControler = TextEditingController();
   TextEditingController passwordControler = TextEditingController();
 
@@ -63,15 +72,17 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(
                     height: 16,
                   ),
-                  ElevatedButton(
-                    onPressed: () {},
-                    child: const Text(
-                      "Login",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueGrey),
-                  ),
+                  isiLoading
+                      ? const CircularProgressIndicator()
+                      : ElevatedButton(
+                          onPressed: () {},
+                          child: const Text(
+                            "Login",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blueGrey),
+                        ),
                   const SizedBox(
                     height: 16,
                   ),
@@ -91,5 +102,42 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  void loginResponse() async {
+    try {
+      setState(() {
+        isiLoading = true;
+      });
+      await Future.delayed(const Duration(seconds: 2));
+      Response response;
+      response = await dio.post(login, data: {
+        "username": usernamControler.text,
+        "password": passwordControler.text,
+      });
+      if (response.data['status'] == true) {
+        toastification.show(
+            context: context,
+            title: Text(response.data['msg']),
+            type: ToastificationType.success,
+            autoCloseDuration: Duration(seconds: 3),
+            style: ToastificationStyle.fillColored);
+        print(response.data['data']);
+        var users = response.data['data'];
+        if (users['role'] == 1) {
+          Navigator.pushNamed(context, HomeAdmin.routeName);
+        } else if(users['role'] == 2) {
+          Navigator.pushNamed(context,HomeUsers.routeName);
+        }
+        
+    
+      } else {
+        toastification.show(
+            title: Text("Terjadi kesalahan pada server"),
+            type: ToastificationType.error,
+            style: ToastificationStyle.fillColored);
+      }
+    } catch (e) {
+    } finally {}
   }
 }

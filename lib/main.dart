@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:movie_apps/admin/home_admin.dart';
 import 'package:movie_apps/auth/login_page.dart';
 import 'package:movie_apps/auth/register_page.dart';
+import 'package:movie_apps/users/home_users.dart';
 
 void main() {
   runApp(const MyApp());
@@ -22,7 +24,9 @@ class MyApp extends StatelessWidget {
       routes:
       {
         LoginPage.routeName: (context) => const LoginPage(),
-        RegisterPage.routeName: (context) => const RegisterPage()
+        RegisterPage.routeName: (context) => const RegisterPage(),
+        HomeAdmin.routeName: (context) => const HomeAdmin(),
+        HomeUsers.routeName: (context) => const  HomeUsers(),
   },
     );
   }
